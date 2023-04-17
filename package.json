@@ -4,19 +4,20 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "server" : "nodemon"
+    "server": "nodemon"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "dotenv": "^16.0.3"
+    "mysql": "^2.18.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.22",
     "@babel/cli": "^7.21.0",
     "@babel/core": "^7.21.4",
     "@babel/node": "^7.20.7",
-    "@babel/preset-env": "^7.21.4"
+    "@babel/preset-env": "^7.21.4",
+    "nodemon": "^2.0.22"
   }
 }
