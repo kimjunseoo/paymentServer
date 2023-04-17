@@ -6,7 +6,12 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-const dbConnection = mysql.createConnection(process.env.DBCONFIG);
+const dbConnection = mysql.createConnection({
+    host : 'localhost', 
+    user : 'root', 
+    password : 'mysql1228!', 
+    database : 'payment_db'
+});
 
 
 app.use("/paymentApi", paymentApiRouter);
