@@ -11,8 +11,6 @@ paymentApiRouter.route("/request").get(requestPayment);
 //paymentApi/approve
 paymentApiRouter.route("/approve").post(approve);
 
-
-
 //결제 취소 요청
 //paymentApi/cancel
 paymentApiRouter.route("/cancel").post(cancel);

@@ -46,12 +46,13 @@ const dbConnection = mysql.createConnection({
     database : 'payment_db'
 });
 
-export const requestPayment = (req, res) => {
+export const requestPayment = async (req, res) => {
 
-    const customer = req.query.payment_id;
-    const item_name = "빅파이"; //req.query.item_name;
-    const price = 418; //req.query.price;
     const orderId = makePaymentId();
+    const customer_id = "test" //req.body.customer_id;
+    const item_name = "빅파이"; //req.body.item_name;
+    const price = 418; //req.body.price;
+    
 
     fetch('https://api.tosspayments.com/v1/payments', {
         method: 'POST',
@@ -69,22 +70,25 @@ export const requestPayment = (req, res) => {
         })
         }).then((response) => response.json())
         .then((data) => {
-            //20230418 여기부터 수정. 데이터베이스에 값 넣고, 리턴값 설정 
-            //로직은 피그마참고
-            console.log(data);
+            dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, "genSuccess");`, (error, rows) => {
+                    if(error){
+                        console.log(error);
+                        return res.status(500);
+                    }
+                return res.status(200).json({
+                    checkoutUrl : data.checkout.url
+                });
+            });
         })
-        .catch((error) => console.log("error :", error));
-
-    return res.send("good");
+        .catch((error) => {
+            dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, status) VALUES (${orderId}, ${customer_id}, ${item_name}, ${price}, "genFail");`, (error, rows) => {
+                if(error){
+                    console.log(error);
+                    return res.status(501);
+                }
+            })            
+        });
 }
-
-/*
-dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, status) VALUES (1, "testUser", "testitem", 0905, "approved");INSERT INTO ;`, (error, data) => {
-                if(error) throw error;
-                console.log("Info :", data);
-                return res.send(data);
-            })
-*/
 
 export const approve = (req, res) => {
     
