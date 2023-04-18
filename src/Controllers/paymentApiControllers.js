@@ -77,7 +77,7 @@ export const requestPayment = async (req, res) => {
                 }
             });
             return res.status(200).json({
-                checkoutUrl : data.checkout.url
+                data
             });
         })
         .catch((error) => {
@@ -88,8 +88,7 @@ export const requestPayment = async (req, res) => {
                 }
             });  
             return res.status(501).json({
-                code : error.code,
-                message : error.message
+                errorMessage : error
             });          
         });
 }
@@ -107,8 +106,8 @@ export const approve = (req, res) => {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            'paymentKey': orderId,
-            'orderId': paymentKey,
+            'paymentKey': paymentKey,
+            'orderId': orderId,
             'amount': amount
         })
         }).then((response) => response.json())
@@ -118,8 +117,9 @@ export const approve = (req, res) => {
                 console.log(error);
             }
         });
+        console.log(data);
         return res.status(200).json({
-            receiptUrl : data.receipt.url
+            data
         });  
     })
     .catch((error) => {
@@ -129,8 +129,7 @@ export const approve = (req, res) => {
             }
         });
         return res.status(501).json({
-            code : error.code,
-            message : error.message
+            errorMessage : error
         });
     })
 }

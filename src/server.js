@@ -14,7 +14,8 @@ const dbConnection = mysql.createConnection({
     database : 'payment_db'
 });
 
-
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use("/paymentApi", paymentApiRouter);
 
 app.listen(3001, () => {
