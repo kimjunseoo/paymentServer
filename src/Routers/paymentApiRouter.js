@@ -5,7 +5,7 @@ const paymentApiRouter = express.Router();
 
 //결제 생성 요청
 //paymentApi/request
-paymentApiRouter.route("/request").get(requestPayment);
+paymentApiRouter.route("/request").post(requestPayment);
 
 //결제 승인 요청
 //paymentApi/approve

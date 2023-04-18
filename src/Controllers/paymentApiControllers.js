@@ -71,35 +71,68 @@ export const requestPayment = async (req, res) => {
         }).then((response) => response.json())
         .then((data) => {
             dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, "genSuccess");`, (error, rows) => {
-                    if(error){
-                        console.log(error);
-                        return res.status(500);
-                    }
-                return res.status(200).json({
-                    checkoutUrl : data.checkout.url
-                });
+                if(error){
+                    console.log(error);
+                    return res.status(500);
+                }
+            });
+            return res.status(200).json({
+                checkoutUrl : data.checkout.url
             });
         })
         .catch((error) => {
-            dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, status) VALUES (${orderId}, ${customer_id}, ${item_name}, ${price}, "genFail");`, (error, rows) => {
+            dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, "genFail");`, (error, rows) => {
                 if(error){
                     console.log(error);
-                    return res.status(501);
+                    res.status(501);
                 }
-            })            
+            });  
+            return res.status(501).json({
+                code : error.code,
+                message : error.message
+            });          
         });
 }
 
 export const approve = (req, res) => {
     
-   
+    const orderId = req.body.orderId;
+    const paymentKey = req.body.paymentKey;
+    const amount = req.body.amount;
 
-    
-
-    
-    
-
-    return res.send("Success");
+    fetch('https://api.tosspayments.com/v1/payments/confirm', {
+        method: 'POST',
+        headers: {
+            'Authorization': `${BASE64_TOSS_SECRET_KEY}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            'paymentKey': orderId,
+            'orderId': paymentKey,
+            'amount': amount
+        })
+        }).then((response) => response.json())
+    .then((data) => {
+        dbConnection.query(`UPDATE payment_data SET status = 'success' WHERE payment_id = "${orderId}" `, (error, rows) => {
+            if(error){
+                console.log(error);
+            }
+        });
+        return res.status(200).json({
+            receiptUrl : data.receipt.url
+        });  
+    })
+    .catch((error) => {
+        dbConnection.query(`UPDATE payment_data SET status = 'fail' WHERE payment_id = "${orderId}" `, (error, rows) => {
+            if(error){
+                console.log(error);
+            }
+        });
+        return res.status(501).json({
+            code : error.code,
+            message : error.message
+        });
+    })
 }
 
 export const cancel = (req, res) => {
