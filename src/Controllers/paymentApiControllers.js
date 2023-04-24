@@ -194,7 +194,10 @@ export const cancel = (req, res) => {
             dbConnection.query(`UPDATE payment_data SET pay_cancel_at = now(), status = 'payCancelSuccess' WHERE payment_id = ${orderId}`, (error, rows) => {
                 if(error){
                     console.log(error);
-                    return res.status(500);
+                    return res.status(500).json({
+                        msg : "error when querying db",
+                        data : data
+                    });
                 } else {
                     return res.status(200).json({
                         msg : "payment cancel success",
@@ -209,7 +212,10 @@ export const cancel = (req, res) => {
             dbConnection.query(`UPDATE payment_data SET pay_cancel_fail_at = now(), status = 'payCancelFail' WHERE payment_id = ${orderId}`, (error, rows) => {
                 if(error){
                     console.log(error);
-                    return res.status(500);
+                    return res.status(500).json({
+                        msg : "error when querying db",
+                        data : data
+                    });
                 } else {
                     return res.status(200).json({
                         msg : "payment cancel fail",
