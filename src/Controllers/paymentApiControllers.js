@@ -43,7 +43,8 @@ const dbConnection = mysql.createConnection({
     host : 'localhost', 
     user : 'root', 
     password : 'mysql1228!', 
-    database : 'payment_db'
+    database : 'payment_db',
+    multipleStatements: true
 });
 
 export const requestPayment = async (req, res) => {
@@ -72,7 +73,7 @@ export const requestPayment = async (req, res) => {
         .then((data) => {
             // 정상일 때
             if(!data.message){
-                dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, "genSuccess");`, (error, rows) => {
+                dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, pay_gen_at, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, ${getCurrentDate()},"genSuccess");`, (error, rows) => {
                     if(error){
                         console.log(error);
                         return res.status(500);
@@ -86,7 +87,7 @@ export const requestPayment = async (req, res) => {
             }
             // 에러일 때(에러 객체를 반환받을 때)
             else if(data.message){
-                dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, "genFail");`, (error, rows) => {
+                dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, pay_gen_fail_at, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, ${getCurrentDate()}, "genFail");`, (error, rows) => {
                     if(error){
                         console.log(error);
                         return res.status(500);
