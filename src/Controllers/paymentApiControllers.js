@@ -73,7 +73,7 @@ export const requestPayment = async (req, res) => {
         .then((data) => {
             // 정상일 때
             if(!data.message){
-                dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, pay_gen_at, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, ${getCurrentDate()},"genSuccess");`, (error, rows) => {
+                dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, pay_gen_at, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, GETDATE(),"genSuccess");`, (error, rows) => {
                     if(error){
                         console.log(error);
                         return res.status(500);
@@ -87,7 +87,7 @@ export const requestPayment = async (req, res) => {
             }
             // 에러일 때(에러 객체를 반환받을 때)
             else if(data.message){
-                dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, pay_gen_fail_at, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, ${getCurrentDate()}, "genFail");`, (error, rows) => {
+                dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, pay_gen_fail_at, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, GETDATE(), "genFail");`, (error, rows) => {
                     if(error){
                         console.log(error);
                         return res.status(500);
@@ -127,7 +127,7 @@ export const approve = (req, res) => {
     .then((data) => {
         // 정상일 때
         if(!data.message){
-            dbConnection.query(`UPDATE payment_data SET status = 'paySuccess' WHERE payment_id = "${orderId}" `, (error, rows) => {
+            dbConnection.query(`UPDATE payment_data SET status = 'paySuccess' WHERE payment_id = "${orderId}";`, (error, rows) => {
                 if(error){
                     console.log(error);
                     return res.status(500);
@@ -141,7 +141,7 @@ export const approve = (req, res) => {
         }
         // 에러일 때(에러 객체를 반활받을 때)
         else if(data.message){
-            dbConnection.query(`UPDATE payment_data SET status = 'payFail' WHERE payment_id = "${orderId}" `, (error, rows) => {
+            dbConnection.query(`UPDATE payment_data SET status = 'payFail' WHERE payment_id = "${orderId}";`, (error, rows) => {
                 if(error){
                     console.log(error);
                     return res.status(500);
