@@ -211,6 +211,3 @@ export const cancel = (req, res) => {
     })
 }
 
-export const order = (req, res) => {
-
-}

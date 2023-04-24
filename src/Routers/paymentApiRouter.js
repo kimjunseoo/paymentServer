@@ -15,9 +15,5 @@ paymentApiRouter.route("/approve").post(approve);
 //paymentApi/cancel
 paymentApiRouter.route("/cancel").post(cancel);
 
-//결제 조회 요청
-//paymentApi/order
-paymentApiRouter.route("/order").post(order);
-
 
 export default paymentApiRouter;
