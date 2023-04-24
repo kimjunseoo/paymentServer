@@ -70,26 +70,35 @@ export const requestPayment = async (req, res) => {
         })
         }).then((response) => response.json())
         .then((data) => {
-            dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, "genSuccess");`, (error, rows) => {
-                if(error){
-                    console.log(error);
-                    return res.status(500);
-                }
-            });
-            return res.status(200).json({
-                data
-            });
+            // 정상일 때
+            if(!data.message){
+                dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, "genSuccess");`, (error, rows) => {
+                    if(error){
+                        console.log(error);
+                        return res.status(500);
+                    }
+                });
+
+                return res.status(200).json({
+                    msg : "payment generate success"
+                })
+            }
+            // 에러일 때(에러 객체를 반환받을 때)
+            else if(data.message){
+                dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, "genFail");`, (error, rows) => {
+                    if(error){
+                        console.log(error);
+                        return res.status(500);
+                    }
+                });
+
+                return res.status(200).json({
+                    msg : "payment generate fail"
+                })
+            }
         })
         .catch((error) => {
-            dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, "genFail");`, (error, rows) => {
-                if(error){
-                    console.log(error);
-                    res.status(501);
-                }
-            });  
-            return res.status(501).json({
-                errorMessage : error
-            });          
+            console.log(error);
         });
 }
 
