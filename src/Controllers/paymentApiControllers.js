@@ -161,6 +161,54 @@ export const approve = (req, res) => {
 
 export const cancel = (req, res) => {
 
+    const paymentKey = req.body.paymentKey;
+    const cancelReason = req.body.cancelReason;
+    const orderId = req.body.orderId;
+
+    fetch(`https://api.tosspayments.com/v1/payments/${paymentKey}/cancel`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `${BASE64_TOSS_SECRET_KEY}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            'cancelReason': `${cancelReason}`
+        })
+    }).then((response) => response.json())
+    .then((data) => {
+        // 정상일 때
+        if(!data.message){
+            dbConnection.query(`UPDATE payment_data SET status = 'payCancelSuccess' WHERE payment_id = ${orderId}`, (error, rows) => {
+                if(error){
+                    console.log(error);
+                    return res.status(500);
+                } else {
+                    return res.status(200).json({
+                        msg : "payment cancel success",
+                        errorCode : data.code,
+                        errorMessage : data.message
+                    });
+                }
+            })
+        } 
+        // 에러일 때(에러 객체를 반환받을 때)
+        else if(data.message){
+            dbConnection.query(`UPDATE payment_data SET status = 'payCancelFail' WHERE payment_id = ${orderId}`, (error, rows) => {
+                if(error){
+                    console.log(error);
+                    return res.status(500);
+                } else {
+                    return res.status(200).json({
+                        msg : "payment cancel fail",
+                        data : data
+                    });
+                }
+            })
+        }
+    })
+    .catch((error) => {
+        console.log(error);
+    })
 }
 
 export const order = (req, res) => {
