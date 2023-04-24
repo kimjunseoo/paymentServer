@@ -76,12 +76,13 @@ export const requestPayment = async (req, res) => {
                     if(error){
                         console.log(error);
                         return res.status(500);
+                    } else {
+                        return res.status(200).json({
+                            msg : "payment generate success",
+                            data : data
+                        });
                     }
-                });
-
-                return res.status(200).json({
-                    msg : "payment generate success"
-                })
+                });  
             }
             // 에러일 때(에러 객체를 반환받을 때)
             else if(data.message){
@@ -89,12 +90,14 @@ export const requestPayment = async (req, res) => {
                     if(error){
                         console.log(error);
                         return res.status(500);
+                    } else {
+                        return res.status(501).json({
+                            msg : "payment generate fail",
+                            errorCode : data.code,
+                            errorMessage : data.message
+                        }) 
                     }
                 });
-
-                return res.status(200).json({
-                    msg : "payment generate fail"
-                })
             }
         })
         .catch((error) => {
@@ -121,25 +124,38 @@ export const approve = (req, res) => {
         })
         }).then((response) => response.json())
     .then((data) => {
-        dbConnection.query(`UPDATE payment_data SET status = 'success' WHERE payment_id = "${orderId}" `, (error, rows) => {
-            if(error){
-                console.log(error);
-            }
-        });
-        console.log(data);
-        return res.status(200).json({
-            data
-        });  
+        // 정상일 때
+        if(!data.message){
+            dbConnection.query(`UPDATE payment_data SET status = 'paySuccess' WHERE payment_id = "${orderId}" `, (error, rows) => {
+                if(error){
+                    console.log(error);
+                    return res.status(500);
+                } else {
+                    return res.status(200).json({
+                        msg : "payment approve success",
+                        data : data
+                    });
+                }
+            });
+        }
+        // 에러일 때(에러 객체를 반활받을 때)
+        else if(data.message){
+            dbConnection.query(`UPDATE payment_data SET status = 'payFail' WHERE payment_id = "${orderId}" `, (error, rows) => {
+                if(error){
+                    console.log(error);
+                    return res.status(500);
+                } else {
+                    return res.status(501).json({
+                        msg : "payment approve fail",
+                        errorCode : data.code,
+                        errorMessage : data.message
+                    })
+                }
+            });
+        }
     })
     .catch((error) => {
-        dbConnection.query(`UPDATE payment_data SET status = 'fail' WHERE payment_id = "${orderId}" `, (error, rows) => {
-            if(error){
-                console.log(error);
-            }
-        });
-        return res.status(501).json({
-            errorMessage : error
-        });
+        console.log(error);
     })
 }
 
