@@ -50,9 +50,9 @@ const dbConnection = mysql.createConnection({
 export const requestPayment = async (req, res) => {
 
     const orderId = makePaymentId();
-    const customer_id = "test" //req.body.customer_id;
-    const item_name = "빅파이"; //req.body.item_name;
-    const price = 418; //req.body.price;
+    const customer_id = req.body.customer_id;
+    const item_name = req.body.item_name;
+    const price = req.body.price;
     
 
     fetch('https://api.tosspayments.com/v1/payments', {
@@ -76,7 +76,10 @@ export const requestPayment = async (req, res) => {
                 dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, pay_gen_at, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, now(), "genSuccess");`, (error, rows) => {
                     if(error){
                         console.log(error);
-                        return res.status(500);
+                        return res.status(500).json({
+                            msg : "error when querying db",
+                            data : data
+                        });
                     } else {
                         return res.status(200).json({
                             msg : "payment generate success",
@@ -90,7 +93,10 @@ export const requestPayment = async (req, res) => {
                 dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, pay_gen_fail_at, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, now(), "genFail");`, (error, rows) => {
                     if(error){
                         console.log(error);
-                        return res.status(500);
+                        return res.status(500).json({
+                            msg : "error when querying db",
+                            data : data
+                        });
                     } else {
                         return res.status(501).json({
                             msg : "payment generate fail",
@@ -130,7 +136,10 @@ export const approve = (req, res) => {
             dbConnection.query(`UPDATE payment_data SET pay_approve_at = now(), status = 'paySuccess' WHERE payment_id = "${orderId}";`, (error, rows) => {
                 if(error){
                     console.log(error);
-                    return res.status(500);
+                    return res.status(500).json({
+                        msg : "error when querying db",
+                        data : data
+                    });
                 } else {
                     return res.status(200).json({
                         msg : "payment approve success",
@@ -144,7 +153,10 @@ export const approve = (req, res) => {
             dbConnection.query(`UPDATE payment_data SET pay_approve_fail_at = now(), status = 'payFail' WHERE payment_id = "${orderId}";`, (error, rows) => {
                 if(error){
                     console.log(error);
-                    return res.status(500);
+                    return res.status(500).json({
+                        msg : "error when querying db",
+                        data : data
+                    });
                 } else {
                     return res.status(501).json({
                         msg : "payment approve fail",
