@@ -62,6 +62,10 @@ export const requestPayment = async (req, res) => {
     const customer_id = req.body.customer_id;
     const item_name = req.body.item_name;
     const price = req.body.price;
+
+    const DB_customer_id = dbConnection.escape(customer_id);
+    const DB_item_name = dbConnection.escape(item_name);
+    const DB_price = dbConnection.escape(price);
     
     if(isItUndifiend(customer_id, item_name, price)){
         return res.status(500).json({
@@ -87,7 +91,7 @@ export const requestPayment = async (req, res) => {
         .then((data) => {
             // 정상일 때
             if(!data.message){
-                dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, pay_gen_at, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, now(), "genSuccess");`, (error, rows) => {
+                dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, pay_gen_at, status) VALUES ("${orderId}", "${DB_customer_id}", "${DB_item_name}", ${DB_price}, now(), "genSuccess");`, (error, rows) => {
                     if(error){
                         console.log(error);
                         return res.status(500).json({
@@ -104,7 +108,7 @@ export const requestPayment = async (req, res) => {
             }
             // 에러일 때(에러 객체를 반환받을 때)
             else if(data.message){
-                dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, pay_gen_fail_at, status) VALUES ("${orderId}", "${customer_id}", "${item_name}", ${price}, now(), "genFail");`, (error, rows) => {
+                dbConnection.query(`INSERT INTO payment_data (payment_id, customer_id, item_name, price, pay_gen_fail_at, status) VALUES ("${orderId}", "${DB_customer_id}", "${DB_item_name}", ${DB_price}, now(), "genFail");`, (error, rows) => {
                     if(error){
                         console.log(error);
                         return res.status(500).json({
@@ -132,6 +136,8 @@ export const approve = (req, res) => {
     const paymentKey = req.body.paymentKey;
     const amount = req.body.amount;
 
+    const DB_orderId = dbConnection.escape(orderId);
+
     if(isItUndifiend(orderId, paymentKey, amount)){
         return res.status(500).json({
             msg : "API Fail / 필수 파라미터가 누락되었습니다."
@@ -153,7 +159,7 @@ export const approve = (req, res) => {
     .then((data) => {
         // 정상일 때
         if(!data.message){
-            dbConnection.query(`UPDATE payment_data SET pay_approve_at = now(), status = 'paySuccess' WHERE payment_id = "${orderId}";`, (error, rows) => {
+            dbConnection.query(`UPDATE payment_data SET pay_approve_at = now(), status = 'paySuccess' WHERE payment_id = "${DB_orderId}";`, (error, rows) => {
                 if(error){
                     console.log(error);
                     return res.status(500).json({
@@ -170,7 +176,7 @@ export const approve = (req, res) => {
         }
         // 에러일 때(에러 객체를 반활받을 때)
         else if(data.message){
-            dbConnection.query(`UPDATE payment_data SET pay_approve_fail_at = now(), status = 'payFail' WHERE payment_id = "${orderId}";`, (error, rows) => {
+            dbConnection.query(`UPDATE payment_data SET pay_approve_fail_at = now(), status = 'payFail' WHERE payment_id = "${DB_orderId}";`, (error, rows) => {
                 if(error){
                     console.log(error);
                     return res.status(500).json({
@@ -198,6 +204,8 @@ export const cancel = (req, res) => {
     const cancelReason = req.body.cancelReason;
     const orderId = req.body.orderId;
 
+    const DB_orderId = dbConnection.escape(orderId);
+
     if(isItUndifiend(paymentKey, cancelReason, orderId)){
         return res.status(500).json({
             msg : "필수 파라미터가 누락되었습니다."
@@ -217,7 +225,7 @@ export const cancel = (req, res) => {
     .then((data) => {
         // 정상일 때
         if(!data.message){
-            dbConnection.query(`UPDATE payment_data SET pay_cancel_at = now(), status = 'payCancelSuccess' WHERE payment_id = ${orderId}`, (error, rows) => {
+            dbConnection.query(`UPDATE payment_data SET pay_cancel_at = now(), status = 'payCancelSuccess' WHERE payment_id = ${DB_orderId}`, (error, rows) => {
                 if(error){
                     console.log(error);
                     return res.status(500).json({
@@ -235,7 +243,7 @@ export const cancel = (req, res) => {
         } 
         // 에러일 때(에러 객체를 반환받을 때)
         else if(data.message){
-            dbConnection.query(`UPDATE payment_data SET pay_cancel_fail_at = now(), status = 'payCancelFail' WHERE payment_id = ${orderId}`, (error, rows) => {
+            dbConnection.query(`UPDATE payment_data SET pay_cancel_fail_at = now(), status = 'payCancelFail' WHERE payment_id = ${DB_orderId}`, (error, rows) => {
                 if(error){
                     console.log(error);
                     return res.status(500).json({
