@@ -5,6 +5,12 @@ import { BASE64_TOSS_SECRET_KEY } from "../env";
 
 dotenv.config();
 
+function isItUndifiend(a, b, c){
+    if(a == undefined || b == undefined || c == undefined){
+        return true;
+    }
+}
+
 //YYYYMMDDhhmmss 포맷 함수
 function getCurrentDate()
 {
