@@ -9,6 +9,8 @@ dotenv.config();
 function isItUndifiend(a, b, c){
     if(a == undefined || b == undefined || c == undefined){
         return true;
+    }else {
+        return false;
     }
 }
 
@@ -61,6 +63,11 @@ export const requestPayment = async (req, res) => {
     const item_name = req.body.item_name;
     const price = req.body.price;
     
+    if(isItUndifiend(customer_id, item_name, price)){
+        return res.status(500).json({
+            msg : "필수 파라미터가 누락되었습니다."
+        })
+    }
 
     fetch('https://api.tosspayments.com/v1/payments', {
         method: 'POST',
@@ -125,6 +132,12 @@ export const approve = (req, res) => {
     const paymentKey = req.body.paymentKey;
     const amount = req.body.amount;
 
+    if(isItUndifiend(orderId, paymentKey, amount)){
+        return res.status(500).json({
+            msg : "필수 파라미터가 누락되었습니다."
+        })
+    }
+
     fetch('https://api.tosspayments.com/v1/payments/confirm', {
         method: 'POST',
         headers: {
@@ -184,6 +197,12 @@ export const cancel = (req, res) => {
     const paymentKey = req.body.paymentKey;
     const cancelReason = req.body.cancelReason;
     const orderId = req.body.orderId;
+
+    if(isItUndifiend(paymentKey, cancelReason, orderId)){
+        return res.status(500).json({
+            msg : "필수 파라미터가 누락되었습니다."
+        })
+    }
 
     fetch(`https://api.tosspayments.com/v1/payments/${paymentKey}/cancel`, {
         method: 'POST',
