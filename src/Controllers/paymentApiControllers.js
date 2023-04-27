@@ -134,7 +134,7 @@ export const approve = (req, res) => {
 
     if(isItUndifiend(orderId, paymentKey, amount)){
         return res.status(500).json({
-            msg : "필수 파라미터가 누락되었습니다."
+            msg : "API Fail / 필수 파라미터가 누락되었습니다."
         })
     }
 
