@@ -5,6 +5,7 @@ import { BASE64_TOSS_SECRET_KEY } from "../env";
 
 dotenv.config();
 
+//변수 undefiend 검증 함수
 function isItUndifiend(a, b, c){
     if(a == undefined || b == undefined || c == undefined){
         return true;
